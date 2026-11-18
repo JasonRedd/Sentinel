@@ -87,3 +87,22 @@ class MitigationRequest(BaseModel):
 def mitigate_block_ip(payload: MitigationRequest):
     result = block_ip_address(payload.ip_address)
     return result
+
+from app.services.ml_engine import score_traffic_vector
+from pydantic import BaseModel
+from typing import List
+
+class MLRequest(BaseModel):
+    features: List[float]
+
+@app.post("/api/ml/score")
+def score_vector(payload: MLRequest):
+    result = score_traffic_vector(payload.features)
+    return result
+
+from app.services.attack_chain import reconstruct_attack_chains
+
+@app.get("/api/threats/chains")
+def get_attack_chains():
+    chains = reconstruct_attack_chains()
+    return {"status": "success", "count": len(chains), "attack_chains": chains}
