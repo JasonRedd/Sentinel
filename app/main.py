@@ -70,3 +70,20 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+from app.services.suricata import get_latest_suricata_alerts
+
+@app.get("/api/alerts")
+def get_alerts():
+    alerts = get_latest_suricata_alerts()
+    return {"status": "success", "count": len(alerts), "alerts": alerts}
+
+from pydantic import BaseModel
+from app.services.mitigation import block_ip_address
+
+class MitigationRequest(BaseModel):
+    ip_address: str
+
+@app.post("/api/mitigate/block")
+def mitigate_block_ip(payload: MitigationRequest):
+    result = block_ip_address(payload.ip_address)
+    return result

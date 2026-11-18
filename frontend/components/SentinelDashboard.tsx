@@ -24,7 +24,26 @@ export default function SentinelDashboard() {
   useEffect(() => {
     fetchAlerts();
     const interval = setInterval(fetchAlerts, 5000);
-    return () => clearInterval(interval);
+    return (
+    <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">TOTAL ALERTS</p>
+        <p className="text-2xl font-bold text-slate-100 font-mono">{alerts.length}</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">ML ENGINE STATUS</p>
+        <p className="text-2xl font-bold text-emerald-400 font-mono">ONLINE</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">MITIGATION GATEWAY</p>
+        <p className="text-2xl font-bold text-cyan-400 font-mono">ACTIVE</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">SECURITY NODE</p>
+        <p className="text-2xl font-bold text-indigo-400 font-mono">CachyOS</p>
+      </div>
+    </div>
+    ) => clearInterval(interval);
   }, []);
 
   const runAnomalyTest = async () => {
@@ -41,6 +60,25 @@ export default function SentinelDashboard() {
   };
 
   return (
+    <div className="grid grid-cols-4 gap-4 mb-6">
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">TOTAL ALERTS</p>
+        <p className="text-2xl font-bold text-slate-100 font-mono">{alerts.length}</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">ML ENGINE STATUS</p>
+        <p className="text-2xl font-bold text-emerald-400 font-mono">ONLINE</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">MITIGATION GATEWAY</p>
+        <p className="text-2xl font-bold text-cyan-400 font-mono">ACTIVE</p>
+      </div>
+      <div className="bg-slate-900 border border-slate-800 p-4 rounded-xl">
+        <p className="text-xs text-slate-400 font-mono">SECURITY NODE</p>
+        <p className="text-2xl font-bold text-indigo-400 font-mono">CachyOS</p>
+      </div>
+    </div>
+    
     <div className='min-h-screen bg-slate-950 text-slate-100 p-6 font-sans'>
       <header className='flex justify-between items-center border-b border-slate-800 pb-4 mb-6'>
         <div>
