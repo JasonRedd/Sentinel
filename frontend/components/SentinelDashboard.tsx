@@ -23,7 +23,11 @@ export default function SentinelDashboard() {
     try {
       const res = await fetch('http://localhost:8000/api/alerts');
       const data = await res.json();
-      if (data.status === 'success') setAlerts(data.alerts);
+      if (data.status === 'success') {
+        setAlerts(data.alerts || data.data || []);
+      } else if (Array.isArray(data)) {
+        setAlerts(data);
+      }
     } catch (e) {
       console.error('Failed to fetch alerts', e);
     }
@@ -84,29 +88,29 @@ export default function SentinelDashboard() {
           <Activity className='w-5 h-5' /> Live Suricata Threat Feed
         </h2>
         <div className='overflow-x-auto'>
-          <table className='w-full text-left text-sm font-mono'>
+          <table className='w-full text-left text-sm font-mono border-collapse'>
             <thead>
               <tr className='border-b border-slate-800 text-slate-400'>
-                <th className='pb-3'>SEVERITY</th>
-                <th className='pb-3'>TIMESTAMP</th>
-                <th className='pb-3'>SOURCE IP</th>
-                <th className='pb-3'>DESTINATION IP</th>
-                <th className='pb-3'>SIGNATURE</th>
+                <th className='px-4 py-3'>SEVERITY</th>
+                <th className='px-4 py-3'>TIMESTAMP</th>
+                <th className='px-4 py-3'>SOURCE IP</th>
+                <th className='px-4 py-3'>DESTINATION IP</th>
+                <th className='px-4 py-3'>SIGNATURE</th>
               </tr>
             </thead>
             <tbody>
               {alerts.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className='py-6 text-center text-slate-500'>No active threat logs detected in eve.json</td>
+                  <td colSpan={5} className='px-4 py-6 text-center text-slate-500'>No active threat logs detected in eve.json</td>
                 </tr>
               ) : (
                 alerts.map((alert, idx) => (
                   <tr key={idx} className='border-b border-slate-800/50 hover:bg-slate-800/30'>
-                    <td className='py-3 text-red-400 font-bold'>{alert.severity}</td>
-                    <td className='py-3 text-slate-300'>{alert.timestamp}</td>
-                    <td className='py-3 text-cyan-400'>{alert.src_ip}</td>
-                    <td className='py-3 text-indigo-400'>{alert.dest_ip}</td>
-                    <td className='py-3 text-slate-100'>{alert.signature}</td>
+                    <td className='px-4 py-3 text-red-400 font-bold'>{alert.severity}</td>
+                    <td className='px-4 py-3 text-slate-300'>{alert.timestamp}</td>
+                    <td className='px-4 py-3 text-cyan-400'>{alert.src_ip}</td>
+                    <td className='px-4 py-3 text-indigo-400'>{alert.dest_ip}</td>
+                    <td className='px-4 py-3 text-slate-100'>{alert.signature}</td>
                   </tr>
                 ))
               )}
@@ -135,10 +139,50 @@ export default function SentinelDashboard() {
         </div>
         {mlResult && (
           <div className='bg-slate-950 border border-slate-800 rounded-lg p-4 font-mono text-sm'>
-            <p><span className='text-slate-400'>Status:</span> <span className='text-emerald-400'>Normal</span></p>
-            <p><span className='text-slate-400'>Anomaly:</span> <span className='text-red-400'>{String(mlResult.anomaly)}</span></p>
+            <p>
+              <span className='text-slate-400'>Status:</span>{' '}
+              <span className={mlResult.anomaly ? 'text-red-400 font-semibold' : 'text-emerald-400'}>
+                {mlResult.anomaly ? 'Anomaly Detected' : 'Normal'}
+              </span>
+            </p>
+            <p>
+              <span className='text-slate-400'>Anomaly:</span>{' '}
+              <span className={mlResult.anomaly ? 'text-red-400' : 'text-emerald-400'}>
+                {String(mlResult.anomaly)}
+              </span>
+            </p>
           </div>
         )}
+      </div>
+
+      <div className="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-xl mt-8">
+        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2 font-mono text-indigo-400">
+          <Activity className="w-5 h-5" /> Attack Chain Reconstruction (Kill Chain)
+        </h2>
+        <div className="space-y-4 font-mono text-sm">
+          {chains.length === 0 ? (
+            <p className="text-slate-500">No correlated attack chains detected across network telemetry.</p>
+          ) : (
+            chains.map((chain, idx) => (
+              <div key={idx} className="bg-slate-950 border border-slate-800 rounded-lg p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-cyan-400 font-bold">Source IP: {chain.source_ip}</span>
+                  <span className="text-xs bg-red-950 text-red-400 border border-red-800 px-2 py-0.5 rounded">
+                    Events: {chain.total_events}
+                  </span>
+                </div>
+                <p className="text-xs text-slate-400 mb-3">Tactics Observed: {chain.tactics_observed.join(', ')}</p>
+                <div className="space-y-2 border-l-2 border-indigo-500/30 pl-4 ml-2">
+                  {chain.timeline.map((event: any, eIdx: number) => (
+                    <div key={eIdx} className="text-xs">
+                      <span className="text-slate-400">{event.timestamp}</span> → <span className="text-red-300 font-semibold">{event.signature}</span> <span className="text-indigo-300">[{event.tactic}]</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       </div>
     </div>
   );
